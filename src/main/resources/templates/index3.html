@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:v-bind="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Title</title>
+    <meta charset="UTF-8">
+    <title>交作业</title>
+    <link rel="stylesheet" href="/css/auth.css" type="text/css">
+    <script src="layui/layui.all.js"></script>
+    <script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <link rel="icon" href="favicon.ico" type="image/x-icon"/>
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"/>
+    <link rel="stylesheet" href="css/xadmin.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue-resource@1.5.1"></script>
+    <link rel="stylesheet" type="text/css" href="css/min.css">
+    <script src="//unpkg.com/vue/dist/vue.js"></script>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="http://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入组件库 -->
+    <script src="http://unpkg.com/element-ui/lib/index.js"></script>
+    <!--    axios-->
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="js/reqwest.js"></script>
+    <script src="js/index.js"></script>
+</head>
+<body class="my100">
+<script charset="utf-8" color="0,0,0" count="99" opacity="1"
+        src="https://cdn.bootcss.com/canvas-nest.js/1.0.1/canvas-nest.js" type="text/javascript"></script>
+<!--VUE.js-->
+<div class="lowin">
+    <div class="lowin-brand">
+        <img src="image/kodinger.jpg" alt="logo">
+    </div>
+    <div class="lowin-wrapper" id="app1">
+        <div class="lowin-box lowin-login">
+            <div class="lowin-box-inner">
+                <p>登录以继续</p>
+                <div class="lowin-group">
+                    <label>作业名称 </label>
+                    <select v-model="form.selected" class="lowin-input">
+                        <div>
+                            <option v-for=" i in form.homework" v-bind:value="i">{{i}}</option>
+                        </div>
+                    </select>
+                </div>
+                <div class="lowin-group">
+                    <label>学号 </label>
+                    <input type="text" v-model="form.xuehao" class="lowin-input">
+                </div>
+                <div class="lowin-group ">
+                    <label>姓名 </label>
+                    <input type="text" v-model="form.name"
+                           class="lowin-input">
+                </div>
+                <div class="lowin-group ">
+                    <label>选择文件 </label>
+                    <input type="file" @change="getFile($event)"
+                           class="lowin-input">
+                </div>
+                <br>
+                <button id="bu" type="submit" class="lowin-btn" @click="onSubmit">提交</button>
+            </div>
+        </div>
+    </div>
+    <footer class="lowin-footer">
+    </footer>
+</div>
+</body>
+
+<script>
+    var Main1 = {
+        data() {
+            return {
+                list: null,
+                file: null,
+                form: {
+                    name: '',
+                    id: '',
+                    homework: ["数学", "语文"],
+                    selected: "",
+                    xuehao: "",
+                }
+            }
+        },
+        methods: {
+            getSubjectsList: function () {
+                let self = this;
+                reqwest({
+                    url: '/list'
+                    , method: 'post'
+                    , error: function (err) {
+                        console.log("err!")
+                    }
+                    , success: function (data) {
+                        self.form.homework = data;
+                        console.log(data);
+                    }
+                })
+            },
+            onSubmit() {
+                var that = this;
+                let formData = new FormData()
+                formData.append('name', this.form.name)
+                formData.append('xuehao', this.form.xuehao)
+                formData.append('homework', this.form.selected)
+                formData.append('file', this.file)
+                var request = new XMLHttpRequest();
+                request.open("POST", "/send", true)
+                request.send(formData);
+                request.onload = function (event) {
+                    if (request.status === 200) {
+                        that.$message.success(request.responseText);
+                    } else {
+                        that.$message.warning(request.responseText);
+                    }
+                }
+            },
+            getFile(event) {
+                this.file = event.target.files[0];
+            },
+            submitUpload() {
+                this.onSubmit();
+            },
+            handleRemove(file, fileList) {
+                console.log(file, fileList);
+            },
+            handlePreview(file) {
+                console.log(file);
+            }
+        },
+        mounted() {
+            this.getSubjectsList();
+            // this.timer = setInterval(this.changeImage, 20000);
+        }
+    }
+    var Ctor = Vue.extend(Main1)
+    new Ctor().$mount('#app1')
+</script>
+</html>
